@@ -236,7 +236,7 @@ export default function Chat() {
     }
 
     const handleButtonClick = () => {
-        setQuestions(oldQuestions => [...oldQuestions, inputValue]);
+        setQuestions(oldQuestions => Array.isArray(oldQuestions) ? [...oldQuestions, inputValue] : [inputValue]);
         setInputValue('');
     }
 
