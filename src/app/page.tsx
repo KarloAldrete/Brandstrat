@@ -20,6 +20,7 @@ interface Project {
   };
   status: string;
   type: string;
+  tableData: Record<string, any[]>;
 };
 
 interface User {
@@ -198,7 +199,7 @@ export default function Home() {
 
                         <div className='w-auto h-full flex flex-row gap-1 cursor-default'>
 
-                          {project.type === 'grupales' ? <span className=' text-sm font-semibold text-[#89898A]'>Grupal</span> : <IconUser size={18} className='text-[#89898A] stroke-[3]' />}
+                          {project.type === 'Grupal' ? <IconUsersGroup size={18} className='text-[#89898A] stroke-[3]' /> : <IconUser size={18} className='text-[#89898A] stroke-[3]' />}
 
                           <span className=' text-sm font-semibold text-[#89898A]'>{project.type}</span>
 
@@ -282,80 +283,97 @@ export default function Home() {
 
             </div>
 
-            <div className='w-full h-full overflow-y-auto gap-2 flex flex-col'>
+            <ScrollShadow hideScrollBar className='w-full flex flex-col gap-2' style={{ maxHeight: 'calc(100vh - 256px)' }}>
 
-              <div className='w-full border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'>
+              {projects.filter(project => project.status === 'process').map((project, index) => (
 
-                <div className='w-full flex flex-col items-center justify-start gap-2 cursor-default'>
+                <div key={index} className='w-full h-auto flex flex-col items-start justify-start gap-2'>
 
-                  <div className='w-full h-[18px] flex flex-row items-center justify-between'>
+                  <div className='w-full border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'>
 
-                    <div className='w-auto h-full flex flex-row gap-1 cursor-default'>
+                    <div className='w-full flex flex-col items-center justify-start gap-2 cursor-default'>
 
-                      <IconUsersGroup size={18} className='text-[#89898A] stroke-[3]' />
+                      <div className='w-full h-[18px] flex flex-row items-center justify-between'>
 
-                      <span className=' text-sm font-semibold text-[#89898A]'>Grupal</span>
+                        <div className='w-auto h-full flex flex-row gap-1 cursor-default'>
+
+                          {project.type === 'Grupal' ? <IconUsersGroup size={18} className='text-[#89898A] stroke-[3]' /> : <IconUser size={18} className='text-[#89898A] stroke-[3]' />}
+
+                          <span className=' text-sm font-semibold text-[#89898A]'>{project.type}</span>
+
+                        </div>
+
+                        <Dropdown aria-label='dropdown' className='rounded' backdrop='blur' classNames={{
+                          base: "before:bg-default-200",
+                          content: "py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
+                        }}>
+                          <DropdownTrigger>
+                            <IconDotsVertical size={18} className='text-[#89898A] cursor-pointer hover:text-[#1F1F21]' />
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label='menu'>
+                            <DropdownItem aria-label='see' key='See' onClick={() => router.push(`proyecto/${project.id}`)}>Acceder</DropdownItem>
+                            <DropdownItem aria-label='move' key='pause' startContent={<IconPlayerPause />} onClick={() => handleProcess(project.id)}>En Pausa</DropdownItem>
+                            <DropdownItem aria-label='move' key='finish' startContent={<IconDiscountCheck />} onClick={() => handleProcess(project.id)}>Finalizado</DropdownItem>
+                            <DropdownItem aria-label='delete' key='Delete' onClick={() => handleDelete(project.id)}>Eliminar</DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+
+                      </div>
+
+                      <div className='w-full h-auto'>
+
+                        <span className='descriptions' style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{project.description}</span>
+
+                      </div>
 
                     </div>
 
-                    <IconDotsVertical size={18} className='text-[#89898A] cursor-pointer hover:text-[#1F1F21]' />
+                    <Divider className='h-[1px] bg-[#89898A]'></Divider>
 
-                  </div>
+                    <div className='w-full h-8 flex flex-row items-end justify-between'>
 
-                  <div className='w-full h-auto'>
+                      <div className='w-auto h-full'>
 
-                    <span className='descriptions'>Empresa de productos defectuosos encabezada por Jennifer Lozoya.</span>
+                        <AvatarGroup isBordered max={3} renderCount={(count) => (
+                          <p className="text-small font-medium ms-2 text-[#89898A]">+{count}</p>
+                        )}>
+
+                          <Tooltip content={project.users.user.name} placement='left'>
+                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                          </Tooltip>
+
+                        </AvatarGroup>
+
+                      </div>
+
+                      <div className='w-auto h-auto flex flex-row items-center justify-end gap-2'>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {project.files?.length > 0 ? <IconFileTypePdf size={24} className='text-[#1F1F21]' /> : <IconBookOff size={24} className='text-[#1F1F21]' />}
+
+                          {project.files?.length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>{project.files.length} Docs</span>}
+
+                        </div>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {Object.keys(project.tableData).length > 0 ? <IconColumns size={24} className='text-[#1F1F21]' /> : null}
+                          {Object.keys(project.tableData).length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>Tabla</span>}
+
+                        </div>
+
+                      </div>
+
+                    </div>
 
                   </div>
 
                 </div>
 
-                <div className='w-full'>
+              ))}
 
-                  <Progress aria-label='progress' label='6 / 12 Entrevistados' value={50} color='primary' className='progress' />
-
-                </div>
-
-                <Divider className='h-[1px] bg-[#89898A]'></Divider>
-
-                <div className='w-full h-8 flex flex-row items-end justify-between'>
-
-                  <div className='w-auto h-full'>
-
-                    <AvatarGroup isBordered color={undefined}>
-
-                      <Avatar src='https://i.pravatar.cc/150?u=a042581f4e29026024d' size='sm' />
-                      <Avatar src='https://i.pravatar.cc/150?u=a042581f4e29026024d' size='sm' />
-
-                    </AvatarGroup>
-
-                  </div>
-
-                  <div className='w-auto h-auto flex flex-row items-center justify-end gap-4'>
-
-                    <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
-
-                      <IconFileTypePdf size={24} className='text-[#1F1F21]' />
-
-                      <span className='text-sm font-bold text-[#1F1F21]'>8 Docs</span>
-
-                    </div>
-
-                    <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
-
-                      <IconColumns size={24} className='text-[#1F1F21]' />
-
-                      <span className='text-sm font-bold text-[#1F1F21]'>Tabla</span>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
+            </ScrollShadow>
 
           </div>
 
@@ -369,11 +387,97 @@ export default function Home() {
 
             </div>
 
-            <div className='w-full h-full'>
+            <ScrollShadow hideScrollBar className='w-full flex flex-col gap-2' style={{ maxHeight: 'calc(100vh - 256px)' }}>
 
-              <div className='w-full h-auto border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'></div>
+              {projects.filter(project => project.status === 'paused').map((project, index) => (
 
-            </div>
+                <div key={index} className='w-full h-auto flex flex-col items-start justify-start gap-2'>
+
+                  <div className='w-full border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'>
+
+                    <div className='w-full flex flex-col items-center justify-start gap-2 cursor-default'>
+
+                      <div className='w-full h-[18px] flex flex-row items-center justify-between'>
+
+                        <div className='w-auto h-full flex flex-row gap-1 cursor-default'>
+
+                          {project.type === 'Grupal' ? <IconUsersGroup size={18} className='text-[#89898A] stroke-[3]' /> : <IconUser size={18} className='text-[#89898A] stroke-[3]' />}
+
+                          <span className=' text-sm font-semibold text-[#89898A]'>{project.type}</span>
+
+                        </div>
+
+                        <Dropdown aria-label='dropdown' className='rounded' backdrop='blur' classNames={{
+                          base: "before:bg-default-200",
+                          content: "py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
+                        }}>
+                          <DropdownTrigger>
+                            <IconDotsVertical size={18} className='text-[#89898A] cursor-pointer hover:text-[#1F1F21]' />
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label='menu'>
+                            <DropdownItem aria-label='see' key='See' onClick={() => router.push(`proyecto/${project.id}`)}>Acceder</DropdownItem>
+                            <DropdownItem aria-label='move' key='pause' startContent={<IconPlayerPause />} onClick={() => handleProcess(project.id)}>En Pausa</DropdownItem>
+                            <DropdownItem aria-label='move' key='finish' startContent={<IconDiscountCheck />} onClick={() => handleProcess(project.id)}>Finalizado</DropdownItem>
+                            <DropdownItem aria-label='delete' key='Delete' onClick={() => handleDelete(project.id)}>Eliminar</DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+
+                      </div>
+
+                      <div className='w-full h-auto'>
+
+                        <span className='descriptions' style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{project.description}</span>
+
+                      </div>
+
+                    </div>
+
+                    <Divider className='h-[1px] bg-[#89898A]'></Divider>
+
+                    <div className='w-full h-8 flex flex-row items-end justify-between'>
+
+                      <div className='w-auto h-full'>
+
+                        <AvatarGroup isBordered max={3} renderCount={(count) => (
+                          <p className="text-small font-medium ms-2 text-[#89898A]">+{count}</p>
+                        )}>
+
+                          <Tooltip content={project.users.user.name} placement='left'>
+                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                          </Tooltip>
+
+                        </AvatarGroup>
+
+                      </div>
+
+                      <div className='w-auto h-auto flex flex-row items-center justify-end gap-2'>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {project.files?.length > 0 ? <IconFileTypePdf size={24} className='text-[#1F1F21]' /> : <IconBookOff size={24} className='text-[#1F1F21]' />}
+
+                          {project.files?.length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>{project.files.length} Docs</span>}
+
+                        </div>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {Object.keys(project.tableData).length > 0 ? <IconColumns size={24} className='text-[#1F1F21]' /> : null}
+                          {Object.keys(project.tableData).length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>Tabla</span>}
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </ScrollShadow>
 
           </div>
 
@@ -387,11 +491,97 @@ export default function Home() {
 
             </div>
 
-            <div className='w-full h-full'>
+            <ScrollShadow hideScrollBar className='w-full flex flex-col gap-2' style={{ maxHeight: 'calc(100vh - 256px)' }}>
 
-              <div className='w-full h-auto border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'></div>
+              {projects.filter(project => project.status === 'finished').map((project, index) => (
 
-            </div>
+                <div key={index} className='w-full h-auto flex flex-col items-start justify-start gap-2'>
+
+                  <div className='w-full border-x-1 border-t-1 border-b-2 border-[#89898A] flex flex-col items-start justify-start p-4 gap-4 rounded-lg bg-white'>
+
+                    <div className='w-full flex flex-col items-center justify-start gap-2 cursor-default'>
+
+                      <div className='w-full h-[18px] flex flex-row items-center justify-between'>
+
+                        <div className='w-auto h-full flex flex-row gap-1 cursor-default'>
+
+                          {project.type === 'Grupal' ? <IconUsersGroup size={18} className='text-[#89898A] stroke-[3]' /> : <IconUser size={18} className='text-[#89898A] stroke-[3]' />}
+
+                          <span className=' text-sm font-semibold text-[#89898A]'>{project.type}</span>
+
+                        </div>
+
+                        <Dropdown aria-label='dropdown' className='rounded' backdrop='blur' classNames={{
+                          base: "before:bg-default-200",
+                          content: "py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
+                        }}>
+                          <DropdownTrigger>
+                            <IconDotsVertical size={18} className='text-[#89898A] cursor-pointer hover:text-[#1F1F21]' />
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label='menu'>
+                            <DropdownItem aria-label='see' key='See' onClick={() => router.push(`proyecto/${project.id}`)}>Acceder</DropdownItem>
+                            <DropdownItem aria-label='move' key='pause' startContent={<IconPlayerPause />} onClick={() => handleProcess(project.id)}>En Pausa</DropdownItem>
+                            <DropdownItem aria-label='move' key='finish' startContent={<IconDiscountCheck />} onClick={() => handleProcess(project.id)}>Finalizado</DropdownItem>
+                            <DropdownItem aria-label='delete' key='Delete' onClick={() => handleDelete(project.id)}>Eliminar</DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+
+                      </div>
+
+                      <div className='w-full h-auto'>
+
+                        <span className='descriptions' style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{project.description}</span>
+
+                      </div>
+
+                    </div>
+
+                    <Divider className='h-[1px] bg-[#89898A]'></Divider>
+
+                    <div className='w-full h-8 flex flex-row items-end justify-between'>
+
+                      <div className='w-auto h-full'>
+
+                        <AvatarGroup isBordered max={3} renderCount={(count) => (
+                          <p className="text-small font-medium ms-2 text-[#89898A]">+{count}</p>
+                        )}>
+
+                          <Tooltip content={project.users.user.name} placement='left'>
+                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                          </Tooltip>
+
+                        </AvatarGroup>
+
+                      </div>
+
+                      <div className='w-auto h-auto flex flex-row items-center justify-end gap-2'>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {project.files?.length > 0 ? <IconFileTypePdf size={24} className='text-[#1F1F21]' /> : <IconBookOff size={24} className='text-[#1F1F21]' />}
+
+                          {project.files?.length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>{project.files.length} Docs</span>}
+
+                        </div>
+
+                        <div className='w-auto h-auto flex flex-row gap-1 items-center justify-end'>
+
+                          {Object.keys(project.tableData).length > 0 ? <IconColumns size={24} className='text-[#1F1F21]' /> : null}
+                          {Object.keys(project.tableData).length > 0 && <span className='text-sm font-bold text-[#1F1F21]'>Tabla</span>}
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </ScrollShadow>
 
           </div>
 

@@ -76,7 +76,8 @@ export const POST = async function (req: NextRequest, res: NextResponse) {
             ])
 
             const model = new OpenAI({
-                modelName: "gpt-4-1106-preview",
+                // modelName: "gpt-4-1106-preview",
+                modelName: "gpt-3.5-turbo-1106",
                 temperature: 0.0,
             });
 

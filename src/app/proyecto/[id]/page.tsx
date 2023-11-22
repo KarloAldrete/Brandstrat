@@ -114,7 +114,6 @@ export default function Chat() {
     }
 
     const handleFiles = (projectId: string) => {
-        console.log(projectId);
         setFilesOpen(true)
     };
 
