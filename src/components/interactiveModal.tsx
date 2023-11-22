@@ -83,7 +83,6 @@ export default function ModalInteractive({ isOpen, projectName, onModalData, tip
                     setHasError(true);
                     onModalData('No hay archivos en el proyecto')
                 } else {
-                    console.log(data);
                     const filteredData = data?.filter(archivo => archivo.name !== 'questions');
                     const totalFiles = filteredData?.length || 0;
 
@@ -158,7 +157,6 @@ export default function ModalInteractive({ isOpen, projectName, onModalData, tip
                                 }
                             }
                         }
-                        console.log(respuestas);
                         onModalData(respuestas);
                         setModalText('Análisis completo')
                         setShowButton(true)

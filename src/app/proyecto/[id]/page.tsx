@@ -66,6 +66,10 @@ export default function Chat() {
         setProject(data);
         setFiles(data?.files);
         setQuestions(data.questions);
+        if (data?.tableData && Object.keys(data.tableData).length > 0) {
+            setTableData(data.tableData);
+            isTableFinished(true);
+        }
     }, [projectId]);
 
     useEffect(() => {
@@ -79,7 +83,25 @@ export default function Chat() {
     const handleModalData = (data: any) => {
         setTableData(data);
         isTableFinished(true);
-        setTableReady(true)
+        setTableReady(true);
+        handleSaveTable(data);
+    }
+
+    const handleSaveTable = async (dataToSave: any) => {
+        if (!dataToSave) {
+            console.error('No hay datos para guardar');
+            return;
+        }
+
+        const { data, error } = await supabaseClient
+            .from('proyectos')
+            .update({ tableData: dataToSave, status: 'process' })
+            .eq('id', projectId)
+            .single();
+
+        if (error) {
+        } else {
+        }
     }
 
     function getTipoAnalisis(type: string | undefined): "grupales" | "profundidad" {
