@@ -9,6 +9,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { utils, writeFile } from 'xlsx';
 import ChatModal from '@/components/chatModal'
 import { Toaster, toast } from 'sonner'
+import readXlsxFile from 'read-excel-file'
+
 
 interface Project {
     description: string;
@@ -56,6 +58,7 @@ export default function Chat() {
     const [questions, setQuestions] = useState<string[]>([]);
     const [tableData, setTableData] = useState<any>([]);
     const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+    const excelInputRef = useRef<HTMLInputElement>(null);
 
     const fetchData = useCallback(async () => {
         const { data, error } = await supabaseClient
@@ -317,6 +320,32 @@ export default function Chat() {
         writeFile(workbook, `report_${dateStr}.xlsx`);
     };
 
+    const readExcelFile = async (file: File) => {
+        try {
+            const rows = await readXlsxFile(file);
+            const headers = rows[0].map(String); // Convert each cell to a string
+            const dataRows = rows.slice(1);
+            const json = headers.reduce((acc: Record<string, any[]>, header: string, index: number) => {
+                acc[header] = dataRows.map(row => row[index]);
+                return acc;
+            }, {});
+            console.log(json);
+            return json;
+        } catch (error) {
+            console.error('Hubo un error al leer el archivo Excel:', error);
+        }
+    };
+
+    const handleExcelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const file = event.target.files[0];
+            const data = await readExcelFile(file);
+            if (data && data.Preguntas) {
+                setQuestions(data.Preguntas);
+            }
+        }
+    }
+
     return (
 
         <div className="w-screen h-auto flex flex-col items-center justify-start">
@@ -507,7 +536,16 @@ export default function Chat() {
 
                             <span className="text-base font-bold text-[#1F1F21] cursor-default">Vista previa de las preguntas del proyecto</span>
 
-                            <Button className="bg-[#1F1F21] min-w-[80px] h-[36px] flex items-center justify-center text-md font-semibold text-[#E7E7E8] rounded-md flex-row gap-1" onClick={handleSaveQuestions}>Guardar</Button>
+                            <div className="w-auto flex flex-row gap-3">
+
+                                <Button className="bg-[#1F1F21] min-w-[80px] h-[36px] flex items-center justify-center text-md font-semibold text-[#E7E7E8] rounded-md flex-row gap-1" onClick={handleSaveQuestions}>Guardar</Button>
+
+                                <label htmlFor="dropzone-excel" className="w-auto px-4 py-2 border-1 border-[#1F1F21] flex flex-col items-center justify-center h-[36px] rounded-md cursor-pointer hover:bg-[#1F1F21] hover:text-[#E7E7E8]">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 hover:text-[#E7E7E8]"><span className="font-semibold">Haz click para cargar un <strong className="hover:text-[#E7E7E8]">Excel</strong></span></p>
+                                    <input id="dropzone-excel" type="file" onChange={handleExcelUpload} className="hidden" accept=".xlsx, .xls" ref={excelInputRef} />
+                                </label>
+
+                            </div>
 
                         </div>
 
@@ -516,7 +554,7 @@ export default function Chat() {
                             {questions?.length > 0 && questions.map((question, index) => (
                                 <div key={index} className="border-1 border-[#89898A] h-auto w-full flex flex-row items-start justify-between p-3 rounded-md">
                                     <span className=" text-sm font-semibold text-[#1F1F21]">{question}</span>
-                                    <IconBackspaceFilled size={18} className="text-[#E7E7E8] hover:text-[#1F1F21] cursor-pointer" onClick={() => handleQuestionDelete(index)} />
+                                    <IconBackspaceFilled size={18} className="text-[#E7E7E8] hover:text-[#1F1F21] cursor-pointer min-w-[18px]" onClick={() => handleQuestionDelete(index)} />
                                 </div>
                             ))}
 
