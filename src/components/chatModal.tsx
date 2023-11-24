@@ -114,7 +114,7 @@ const ChatModal = () => {
                                 <input
                                     type="text"
                                     value={currentMessage}
-                                    placeholder='Haz una consulta...'
+                                    placeholder='En Desarrollo...'
                                     onChange={handleMessageChange}
                                     className="bg-white w-full border-white focus:outline-none text-md font-medium text-[#89898A] placeholder:text-[#89898A]"
                                 />
