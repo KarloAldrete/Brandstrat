@@ -72,6 +72,7 @@ export default function Chat() {
         if (data?.tableData && Object.keys(data.tableData).length > 0) {
             setTableData(data.tableData);
             isTableFinished(true);
+            setTableReady(true);
         }
     }, [projectId]);
 
