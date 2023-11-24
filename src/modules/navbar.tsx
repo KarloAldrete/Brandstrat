@@ -45,7 +45,7 @@ export default function NavigationBar() {
         try {
             const { error } = await supabase.auth.signOut();
             if (!error) {
-                router.push("/");
+                router.push("/auth");
             } else {
             }
         } catch (error: any) {
@@ -93,7 +93,7 @@ export default function NavigationBar() {
                                     </DropdownMenuItem>
                                 </DropdownMenuGroup>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleSignOut}>
                                     <IconArrowBarRight className='w-[16px]' />
                                     <button>Cerrar Sesion</button>
                                 </DropdownMenuItem>
