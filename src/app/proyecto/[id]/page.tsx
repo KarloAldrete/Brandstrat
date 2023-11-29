@@ -8,8 +8,10 @@ import ModalInteractive from '@/components/interactiveModal';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { utils, writeFile } from 'xlsx';
 import ChatModal from '@/components/chatModal'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import readXlsxFile from 'read-excel-file'
+import ExcelJS from 'exceljs'
+import * as FileSaver from 'file-saver';
 
 
 interface Project {
@@ -299,17 +301,31 @@ export default function Chat() {
 
     const exportExcel = () => {
         const workbook = utils.book_new();
-        let formattedData: ({ Pregunta?: string; Nombre?: string; Respuesta?: string })[] = [];
+        let formattedData: ({ Pregunta?: string;[key: string]: string | undefined }[]) = [];
+
+        let allNames: string[] = [];
+        Object.values(tableData).forEach((data: any) => {
+            (data as { name: string; respuesta: string }[]).forEach((respuesta) => {
+                if (!allNames.includes(respuesta.name)) {
+                    allNames.push(respuesta.name);
+                }
+            });
+        });
+
+        let headers: { [key: string]: string } = { Pregunta: '' };
+        allNames.forEach((name) => {
+            headers[name] = name;
+        });
+        formattedData.push(headers);
 
         Object.keys(tableData).forEach((question) => {
-            formattedData.push({ Pregunta: question });
-            const data = tableData[question];
-            data.forEach((respuesta: { name: string; respuesta: string }) => {
-                formattedData.push({
-                    Nombre: respuesta.name,
-                    Respuesta: respuesta.respuesta
-                });
+            let row: { Pregunta?: string;[key: string]: string | undefined } = { Pregunta: question };
+            const data = tableData[question] as { name: string; respuesta: string }[];
+            allNames.forEach((name) => {
+                const respuesta = data.find((r) => r.name === name);
+                row[name] = respuesta ? respuesta.respuesta : '';
             });
+            formattedData.push(row);
             formattedData.push({});
         });
 
@@ -320,6 +336,30 @@ export default function Chat() {
         const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         writeFile(workbook, `report_${dateStr}.xlsx`);
     };
+
+    // const exportExcel = () => {
+    //     const workbook = utils.book_new();
+    //     let formattedData: ({ Pregunta?: string; Nombre?: string; Respuesta?: string })[] = [];
+
+    //     Object.keys(tableData).forEach((question) => {
+    //         formattedData.push({ Pregunta: question });
+    //         const data = tableData[question];
+    //         data.forEach((respuesta: { name: string; respuesta: string }) => {
+    //             formattedData.push({
+    //                 Nombre: respuesta.name,
+    //                 Respuesta: respuesta.respuesta
+    //             });
+    //         });
+    //         formattedData.push({});
+    //     });
+
+    //     const worksheet = utils.json_to_sheet(formattedData, { skipHeader: true });
+    //     utils.book_append_sheet(workbook, worksheet, "Resultados");
+
+    //     const date = new Date();
+    //     const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    //     writeFile(workbook, `report_${dateStr}.xlsx`);
+    // };
 
     const readExcelFile = async (file: File) => {
         try {
