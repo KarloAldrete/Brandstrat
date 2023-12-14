@@ -94,7 +94,7 @@ export default function SignUp() {
 
                     </p>
 
-                    <span className="font-bold">Karlo Aldrete</span>
+                    <span className="font-bold">-Karlo Aldrete</span>
 
                     <Button className='bg-[#1F1F21] rounded-md w-full min-h-[36px] text-white font-semibold text-base' onClick={() => window.location.href='https://buy.stripe.com/3csbKWbrI1eyecM288'}>Proceder al pago</Button>
 
