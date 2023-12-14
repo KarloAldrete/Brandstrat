@@ -1,13 +1,22 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { IconWand, IconArrowForward } from '@tabler/icons-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { IconWand, IconArrowForward, IconWandOff } from '@tabler/icons-react';
 import { ScrollShadow } from '@nextui-org/react';
 
-const ChatModal = () => {
+
+const ChatModal = (id: any) => {
     const [currentMessage, setCurrentMessage] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot', message: string }[]>([]);
     const [modalInputPlaceholder, setModalInputPlaceholder] = useState("Haz una consulta...");
+    const endOfMessagesRef = useRef<HTMLDivElement>(null);
+    const projectId = id;
+
+    const scrollToBottom = () => {
+        endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+
+    useEffect(scrollToBottom, [chatHistory]);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -35,7 +44,7 @@ const ChatModal = () => {
                 messages: [
                     {
                         role: 'user',
-                        content: value,
+                        content: [{ value: value, projectId: projectId }],
                     },
                 ],
             }),
@@ -46,8 +55,7 @@ const ChatModal = () => {
         while (true) {
             const { done, value } = await reader.read();
             if (done) {
-                setChatHistory(prevHistory => [...prevHistory, { role: 'bot', message: chunks }]);
-                console.log(response);
+                setChatHistory(prevHistory => [...prevHistory, { role: 'bot', message: chunks}]);
                 break;
             }
             chunks += new TextDecoder("utf-8").decode(value);
@@ -94,27 +102,29 @@ const ChatModal = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
-                    <div className="w-[640px] h-full rounded-lg bg-transparent flex flex-col justify-center gap-4" style={{ maxHeight: 'calc(100vh - 256px)'}}>
+                    <div className="w-[640px] h-full rounded-lg bg-transparent flex flex-col justify-center gap-4" style={{ maxHeight: 'calc(100vh - 256px)' }}>
 
                         <ScrollShadow hideScrollBar className='flex flex-col gap-2 h-full max-h-[624px]' >
 
                             {chatHistory.map((chat, index) => (
                                 <div key={index} className="bg-white p-4 flex flex-col gap-1 rounded-lg">
-                                    <p className="font-bold">{chat.role === 'user' ? 'Tú' : 'Bot'}</p>
+                                    <p className="font-bold">{chat.role === 'user' ? 'Tú' : 'IA'}</p>
                                     <p>{chat.message}</p>
                                 </div>
                             ))}
+
+                            <div ref={endOfMessagesRef} />
 
                         </ScrollShadow>
 
                         <div className=' w-full h-auto max-h-[64px] border-2 border-[#E7E7E8] rounded-lg flex flex-row px-4 py-2 items-center justify-between bg-white'>
 
                             <div className="w-full h-full max-h-5 flex flex-row items-center justify-start gap-2">
-                                <IconWand size={20} className='text-[#89898A]' />
+                                <IconWandOff size={20} className='text-[#89898A] cursor-pointer hover:text-black' onClick={handleCloseModal} />
                                 <input
                                     type="text"
                                     value={currentMessage}
-                                    placeholder='En Desarrollo...'
+                                    placeholder='Haz otra pregunta...'
                                     onChange={handleMessageChange}
                                     className="bg-white w-full border-white focus:outline-none text-md font-medium text-[#89898A] placeholder:text-[#89898A]"
                                 />

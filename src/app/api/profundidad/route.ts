@@ -41,8 +41,10 @@ export const POST = async function (req: NextRequest, res: NextResponse) {
 
     const { projectName, fileName, questions } = await req.json() as RequestBody;
 
+    const questionsWithIds = questions.map((question, index) => ({ id: index, text: question.text }));
+
     const project = (projectName).toString();
-    let respuestas: { [key: string]: { name: string, respuesta: string }[] } = {};
+    let respuestas: Map<string, { name: string, respuesta: string }[]> = new Map();
     let totalTokens = 0;
     console.log(totalTokens);
 
@@ -51,7 +53,7 @@ export const POST = async function (req: NextRequest, res: NextResponse) {
             console.log(`Trabajando con el archivo: ${nombreArchivo}`);
             let intentos = 0;
             const maxIntentos = 3;
-            let archivoDescargado = null;
+            let archivoDescargado: Blob | null = null;
 
             const startTime = Date.now();
 
@@ -122,7 +124,7 @@ export const POST = async function (req: NextRequest, res: NextResponse) {
                 console.log('Nombre obtenido:', nombreRespuesta);
                 const eName = nombreRespuesta.text;
 
-                for (let i = 0; i < questions.length; i++) {
+                for (let i = 0; i < questionsWithIds.length; i++) {
                     const questionObject = questions[i];
                     const questionText = questionObject.text;
                     console.log(`------ Procesando pregunta: ${questionText} ------`);
@@ -136,7 +138,6 @@ export const POST = async function (req: NextRequest, res: NextResponse) {
                             if (!respuestas[questionText]) {
                                 respuestas[questionText] = [];
                             }
-                            
                             respuestas[questionText].push({ name: eName, respuesta: response.text });
                             
                             const tokens = encode(response.text);

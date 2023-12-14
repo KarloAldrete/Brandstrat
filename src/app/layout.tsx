@@ -30,7 +30,7 @@ export default function RootLayout({
 
         <Providers>
 
-          <Toaster />
+          <Toaster expand={true} />
 
           {children}
 

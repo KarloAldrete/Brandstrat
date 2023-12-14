@@ -24,7 +24,7 @@ interface Project {
 };
 
 interface User {
-  img: string;
+  avatar: string;
   name: string;
 };
 
@@ -235,14 +235,14 @@ export default function Home() {
 
                     <div className='w-full h-8 flex flex-row items-end justify-between'>
 
-                      <div className='w-auto h-full'>
+                      <div className='w-auto h-full flex items-start justify-start pl-2'>
 
                         <AvatarGroup isBordered max={3} renderCount={(count) => (
                           <p className="text-small font-medium ms-2 text-[#89898A]">+{count}</p>
                         )}>
 
                           <Tooltip content={project.users.user.name} placement='left'>
-                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                            <Avatar src={project.users.user.avatar} size='sm' name={project.users.user.name} />
                           </Tooltip>
 
                         </AvatarGroup>
@@ -332,14 +332,14 @@ export default function Home() {
 
                     <div className='w-full h-8 flex flex-row items-end justify-between'>
 
-                      <div className='w-auto h-full'>
+                      <div className='w-auto h-full flex items-start justify-start pl-2'>
 
                         <AvatarGroup isBordered max={3} renderCount={(count) => (
-                          <p className="text-small font-medium ms-2 text-[#89898A]">+{count}</p>
+                          <p className="text-small font-medium ms-2 text-[#89898A] w-full h-full">+{count}</p>
                         )}>
 
                           <Tooltip content={project.users.user.name} placement='left'>
-                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                            <Avatar src={project.users.user.avatar} size='sm' name={project.users.user.name} />
                           </Tooltip>
 
                         </AvatarGroup>
@@ -443,7 +443,7 @@ export default function Home() {
                         )}>
 
                           <Tooltip content={project.users.user.name} placement='left'>
-                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                            <Avatar src={project.users.user.avatar} size='sm' name={project.users.user.name} />
                           </Tooltip>
 
                         </AvatarGroup>
@@ -547,7 +547,7 @@ export default function Home() {
                         )}>
 
                           <Tooltip content={project.users.user.name} placement='left'>
-                            <Avatar src={project.users.user.img} size='sm' name={project.users.user.name} />
+                            <Avatar src={project.users.user.avatar} size='sm' name={project.users.user.name} />
                           </Tooltip>
 
                         </AvatarGroup>

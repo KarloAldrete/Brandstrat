@@ -3,7 +3,7 @@ import { Divider, Tooltip, Progress, Modal, ModalContent, ModalBody, Button, Cir
 import { useRouter, usePathname } from "next/navigation";
 import supabaseClient from '@/lib/supabase'
 import '@/styles/chat.css'
-import { IconArrowNarrowLeft, IconLink, IconColumns, IconFileFilled, IconBackspaceFilled, IconMenu2, IconTrash, IconFiles, IconQuestionMark, IconUsersGroup, IconX, IconSend } from '@tabler/icons-react';
+import { IconArrowNarrowLeft, IconLink, IconColumns, IconFileFilled, IconTopologyStar3, IconBackspaceFilled, IconMenu2, IconTrash, IconFiles, IconQuestionMark, IconUsersGroup, IconX, IconSend } from '@tabler/icons-react';
 import ModalInteractive from '@/components/interactiveModal';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { utils, writeFile } from 'xlsx';
@@ -25,7 +25,7 @@ interface Project {
         user: {
             email: string;
             id: string;
-            img: string;
+            avatar: string;
             name: string;
             role: string;
         }
@@ -87,10 +87,11 @@ export default function Chat() {
     }
 
     const handleModalData = (data: any) => {
+        const dataArray = Object.entries(data);
         setTableData(data);
         isTableFinished(true);
         setTableReady(true);
-        handleSaveTable(data);
+        handleSaveTable(dataArray);
     }
 
     const handleSaveTable = async (dataToSave: any) => {
@@ -98,6 +99,8 @@ export default function Chat() {
             console.error('No hay datos para guardar');
             return;
         }
+
+        console.log('Guardando datos:', dataToSave);
 
         const { data, error } = await supabaseClient
             .from('proyectos')
@@ -143,8 +146,8 @@ export default function Chat() {
         }
     }
 
-    const handleFileDelete = async (fileName: string) => {
-        setFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
+    const handleFileDelete = (fileName: string) => {
+        setNewFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
     };
 
     const updateProjectFiles = async (files: FileWithId[], url: string) => {
@@ -291,8 +294,21 @@ export default function Chat() {
         );
 
         const { data, error } = await updatePromise;
-        console.log(data);
-        console.log(questions);
+
+        if (error) {
+            console.error('Error al actualizar las preguntas del proyecto:', error);
+        } else {
+            toast(
+                'Se reiniciará la ventana para cargar las preguntas',
+                {
+                    duration: 5000,
+                }
+            );
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        }
     }
 
     const handleQuestionClick = (question: string) => {
@@ -305,7 +321,7 @@ export default function Chat() {
 
         let allNames: string[] = [];
         Object.values(tableData).forEach((data: any) => {
-            (data as { name: string; respuesta: string }[]).forEach((respuesta) => {
+            (data[1] as { name: string; respuesta: string }[]).forEach((respuesta) => {
                 if (!allNames.includes(respuesta.name)) {
                     allNames.push(respuesta.name);
                 }
@@ -319,8 +335,8 @@ export default function Chat() {
         formattedData.push(headers);
 
         Object.keys(tableData).forEach((question) => {
-            let row: { Pregunta?: string;[key: string]: string | undefined } = { Pregunta: question };
-            const data = tableData[question] as { name: string; respuesta: string }[];
+            let row: { Pregunta?: string;[key: string]: string | undefined } = { Pregunta: tableData[question][0] };
+            const data = tableData[question][1] as { name: string; respuesta: string }[];
             allNames.forEach((name) => {
                 const respuesta = data.find((r) => r.name === name);
                 row[name] = respuesta ? respuesta.respuesta : '';
@@ -364,7 +380,7 @@ export default function Chat() {
     const readExcelFile = async (file: File) => {
         try {
             const rows = await readXlsxFile(file);
-            const headers = rows[0].map(String); // Convert each cell to a string
+            const headers = rows[0].map(String);
             const dataRows = rows.slice(1);
             const json = headers.reduce((acc: Record<string, any[]>, header: string, index: number) => {
                 acc[header] = dataRows.map(row => row[index]);
@@ -387,6 +403,38 @@ export default function Chat() {
         }
     }
 
+    const handleInform = async () => {
+        try {
+            const response = await fetch('/api/informe');
+            const data = await response.json();
+            console.log(data);
+            const workbook = new ExcelJS.Workbook();
+            const sheet = workbook.addWorksheet('Resultados');
+            const date = new Date();
+            const dateStr = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            sheet.columns = [
+                { header: 'Pregunta', key: 'Pregunta', width: 20 },
+                { header: 'Nombre', key: 'Nombre', width: 20 },
+                { header: 'Respuesta', key: 'Respuesta', width: 20 },
+            ];
+            Object.keys(data).forEach((question) => {
+                const rows = data[question];
+                rows.forEach((row: { name: string; respuesta: string }) => {
+                    sheet.addRow({
+                        Pregunta: question,
+                        Nombre: row.name,
+                        Respuesta: row.respuesta
+                    });
+                });
+            });
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            FileSaver.saveAs(blob, `report_${dateStr}.xlsx`);
+        } catch (error) {
+            console.error('Hubo un error al obtener el informe:', error);
+        }
+    }
+
     return (
 
         <div className="w-screen h-auto flex flex-col items-center justify-start">
@@ -395,7 +443,7 @@ export default function Chat() {
 
                 <Button className="bg-[#1F1F21] min-w-[80px] h-[36px] flex items-center justify-center text-md font-semibold text-[#E7E7E8] rounded-md flex-row gap-1" onClick={() => router.push('/')}> <IconArrowNarrowLeft size={20} /> Regresar</Button>
 
-                <ChatModal />
+                <ChatModal id={projectId} />
 
                 <div className="w-auto h-10 flex flex-row items-center justify-end gap-4">
 
@@ -424,6 +472,7 @@ export default function Chat() {
                             <DropdownItem aria-label='questions' key='questions' startContent={<IconQuestionMark />} className="custom-dropdown-item rounded" onClick={() => handleQuestions()}>Preguntas</DropdownItem>
                             <DropdownItem isDisabled={!tableReady} aria-label='table' key='table' startContent={<IconColumns />} className="custom-dropdown-item rounded" onClick={exportExcel}>Descargar Tabla</DropdownItem>
                             <DropdownItem aria-label='access' key='access' startContent={<IconUsersGroup />} className="custom-dropdown-item rounded">Accesos</DropdownItem>
+                            <DropdownItem isDisabled aria-label='document' key='document' startContent={<IconTopologyStar3 />} className="custom-dropdown-item rounded" onClick={handleInform}>Informe</DropdownItem>
                             <DropdownItem aria-label='delete' key='delete' startContent={<IconTrash />} className="custom-dropdown-item rounded" >Eliminar</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
@@ -433,6 +482,7 @@ export default function Chat() {
             </div>
 
             <ModalInteractive isOpen={isModalOpen} projectName={projectId} onModalData={handleModalData} tipoAnalisis={getTipoAnalisis(project?.type)} />
+
 
             {table && Object.keys(tableData).length > 0 && (
 
@@ -446,7 +496,7 @@ export default function Chat() {
 
                         <div className="border-[#1F1F21] border-2 w-1/4 h-full rounded-lg flex flex-col gap-2 p-2 overflow-hidden">
 
-                            <ScrollShadow hideScrollBar className='flex flex-col gap-2' >
+                            <ScrollShadow className='flex flex-col gap-2 qshadow'>
 
                                 {Object.keys(tableData).map((pregunta, index) => (
                                     <div
@@ -454,7 +504,7 @@ export default function Chat() {
                                         className={`border-2 border-[#1F1F21] w-full h-auto flex flex-row items-center justify-start px-3 py-4 gap-2 rounded-md ${pregunta === selectedQuestion ? 'bg-[#1F1F21]' : 'bg-white'} cursor-pointer`}
                                         onClick={() => handleQuestionClick(pregunta)}
                                     >
-                                        <span className={`w-full text-base font-bold cursor-pointer ${pregunta === selectedQuestion ? 'text-white' : 'text-[#1F1F21]'}`}>{pregunta}</span>
+                                        <span className={`w-full text-base font-semibold cursor-pointer ${pregunta === selectedQuestion ? 'text-white' : 'text-[#1F1F21]'}`}><span className="text-[#E7E7E8]"></span> {tableData[pregunta][0]} </span>
                                     </div>
                                 ))}
 
@@ -464,8 +514,8 @@ export default function Chat() {
 
                         <div className="w-3/4 h-full flex flex-row gap-2">
 
-                            <ScrollShadow orientation="horizontal" className="horizontal flex flex-row gap-2" >
-                                {selectedQuestion && tableData[selectedQuestion].map((respuesta: any, index: any) => (
+                            <ScrollShadow orientation="horizontal" className="horizontal flex flex-row gap-2">
+                                {selectedQuestion && tableData[selectedQuestion] && tableData[selectedQuestion][1] && tableData[selectedQuestion][1].map((respuesta, index) => (
                                     <div key={index} className="w-80 min-w-[310px] flex flex-col gap-2 cursor-default">
                                         <div className="w-full h-11 min-h-[44px] rounded-md bg-white flex items-center justify-center">
                                             <span className="text-base font-semibold text-[#1F1F21]">{respuesta.name}</span>

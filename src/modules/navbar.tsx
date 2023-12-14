@@ -59,7 +59,7 @@ export default function NavigationBar() {
         ) : (
             <Navbar className="" isBlurred={true} maxWidth="full">
 
-                <NavbarBrand>
+                <NavbarBrand onClick={() => router.push('/')} className="cursor-pointer">
                     <Image src={logo} alt="logo" height={32} width={32} />
                     <p className="font-bold text-inherit">Brandstrat</p>
                 </NavbarBrand>
@@ -69,14 +69,14 @@ export default function NavigationBar() {
                     {userIsLoggedIn && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Avatar src={user?.img} alt="user" className="bg-[#E7E7E8] text-[#1F1F21] cursor-pointer" aria-label="user" name={user.email} />
+                                <Avatar src={user?.avatar} alt="user" className="bg-[#E7E7E8] text-[#1F1F21] cursor-pointer" aria-label="user" name={user.email} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56 mr-2">
                                 <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
 
                                 {user.role === 'admin' && (
-                                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                                    <DropdownMenuItem onClick={() => router.push('/admin')}>
                                         <IconBrandAsana className='w-[16px]' />
                                         Panel de Control
                                     </DropdownMenuItem>

@@ -123,3 +123,27 @@
     border-radius: 6px;
     cursor: pointer;
 }
+
+.qshadow {
+    overflow-y: scroll;
+}
+
+.qshadow::-webkit-scrollbar {
+    color: transparent;
+    width: 8px;
+    height: 8px;
+    cursor: pointer;
+}
+
+.qshadow::-webkit-scrollbar-track {
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.qshadow::-webkit-scrollbar-thumb {
+    background-color: #FFF;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 4px;
+    cursor: pointer;
+}
