@@ -23,7 +23,7 @@ export default async function Grupales(projectName: string, fileName: string) {
             console.log(`Trabajando con el archivo: ${nombreArchivo}`);
             let intentos = 0;
             const maxIntentos = 3;
-            let archivoDescargado = null;
+            let archivoDescargado: Blob | null = null;
 
             while (intentos < maxIntentos && archivoDescargado === null) {
                 const { data: archivo, error } = await supabaseClient
