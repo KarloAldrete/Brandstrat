@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const maxDuration = 300;
+// export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
 
 import { VerbaTool } from "@/tools/verbatims";

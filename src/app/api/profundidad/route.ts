@@ -22,7 +22,7 @@ interface RequestBody {
     questions: Question[];
 }
 
-export const maxDuration = 300;
+// export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
 
 async function hacerPreguntaConTiempoLimite(chain: any, preguntaPersonalizada: string, tiempoLimite: number) {
