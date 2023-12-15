@@ -335,6 +335,7 @@ export default function Dashboard() {
                 data: {
                     name: newUserName,
                     role: newUserRole,
+                    status: 'activo'
                 },
             },
         });
