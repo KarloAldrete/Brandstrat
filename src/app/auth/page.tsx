@@ -43,7 +43,7 @@ export default function SignUp() {
 
             <div className="w-5/12 h-full flex flex-col items-center justify-center gap-4">
 
-                {/* <div className="header cursor-default">
+                <div className="header cursor-default">
                     <span className="text-2xl font-bold">Iniciar sesión</span>
                     <p className="text-md text-gray-500">Ingresa a tu cuenta para acceder a la plataforma</p>
                 </div>
@@ -77,8 +77,10 @@ export default function SignUp() {
 
                     <Button className="bg-black text-white text-md font-semibold hover:bg-[#EF7A17] rounded-md" onClick={handleSignIn}>Iniciar sesión</Button>
 
-                </div> */}
-                <div className="flex flex-col items-start justify-start gap-4">
+                </div>
+
+
+                {/* <div className="flex flex-col items-start justify-start gap-4">
 
                     <span className="font-bold">Estimado equipo de Brandstrat</span>
 
@@ -98,7 +100,7 @@ export default function SignUp() {
 
                     <Button className='bg-[#1F1F21] rounded-md w-full min-h-[36px] text-white font-semibold text-base' onClick={() => window.location.href='https://buy.stripe.com/3csbKWbrI1eyecM288'}>Proceder al pago</Button>
 
-                </div>
+                </div> */}
 
             </div>
 
